@@ -4,20 +4,19 @@ import { Capabilities, Frameworks, Options, Services } from '@wdio/types'
 import { PickleTag } from '@cucumber/messages'
 import { ITestCaseHookParameter } from '@cucumber/cucumber'
 import { Test, TestResult } from '@wdio/types/build/Frameworks'
-import { Utils } from './utils';
 
 export default class AzureDevopsService implements Services.ServiceInstance {
   private _azureReporter: AzureTestPlanReporter
-  private utils: Utils;
   private currentScreenshot?: string;
+  private withScreenshot:boolean;
   constructor(
     private _options: IAzureConfig,
     private _capabilities: Capabilities.RemoteCapability,
     private _config: Omit<Options.Testrunner, 'capabilities'>
   ) {
     _options = Object.assign(_options, { stdout: true })
+    this.withScreenshot = _options.failedScreenshot ?? false;
     this._azureReporter = new AzureTestPlanReporter(this._options)
-    this.utils = new Utils();
   }
 
   async onPrepare(): Promise<void> {
@@ -73,7 +72,8 @@ export default class AzureDevopsService implements Services.ServiceInstance {
     await this._azureReporter.init()
     const runId = await this._azureReporter.getCurrentTestRunId()
     const sedTest = await this._azureReporter.sendTestResult(testResult, runId)
-    if (sedTest.length > 0 && this._options.failedScreenshot == true) {
+    
+    if (sedTest.length > 0 && this.withScreenshot == true) {
       sedTest.forEach(async (uniTest) => {
           const screenshot = this.currentScreenshot
           if (screenshot != null) {
@@ -86,7 +86,6 @@ export default class AzureDevopsService implements Services.ServiceInstance {
   async afterCommand(commandName: string, args: any[], result: any, error?: Error): Promise<void> {
     if (commandName == 'takeScreenshot') {
       this.currentScreenshot = result;
-      console.log("mi log command: ", commandName);
     }
   
   }
