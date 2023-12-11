@@ -24,7 +24,7 @@
     "package": "npm run build && npm pack",
     "test": "jest --no-cache --runInBand --passWithNoTests",
     "test:cov": "jest --coverage --no-cache --runInBand",
-    "addscope": "node tools/packagejson name @gmangiapelo/wdio-azure-devops-service"
+    "addscope": "node tools/packagejson name @criszalo1997/wdio-azure-devops-service"
   },
   "publishConfig": {
     "access": "public"
@@ -45,18 +45,18 @@
   ],
   "author": "Gianluca Mangiapelo <gianluca.mangiapelo@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/gianlucamangiapelo/wdio-azure-devops-service",
+  "homepage": "https://github.com/criszalo1997/wdio-azure-devops-service",
   "repository": {
     "type": "git",
-    "url": "git@github.com:gianlucamangiapelo/wdio-azure-devops-service.git"
+    "url": "git@github.com:criszalo1997/wdio-azure-devops-service.git"
   },
   "bugs": {
-    "url": "https://github.com/gianlucamangiapelo/wdio-azure-devops-service/issues"
+    "url": "https://github.com/criszalo1997/wdio-azure-devops-service/issues"
   },
   "dependencies": {
     "@cucumber/cucumber": "^8.2.1",
     "@cucumber/messages": "^18.0.0",
-    "@gmangiapelo/azuredevops-test-reporter": "C:/Users/crojasa/Documents/azuredevops-test-reporter",
+    "@criszalo1997/azuredevops-test-reporter": "^0.0.10",
     "@wdio/reporter": "^7.19.7",
     "@wdio/types": "^7.19.5",
     "azure-devops-node-api": "^11.1.1",
