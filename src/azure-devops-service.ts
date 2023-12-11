@@ -2,20 +2,22 @@ import { IAzureConfig, ITestResult } from './interface'
 import { AzureTestPlanReporter } from '@criszalo1997/azuredevops-test-reporter'
 import { Capabilities, Frameworks, Options, Services } from '@wdio/types'
 import { PickleTag } from '@cucumber/messages'
-import { ITestCaseHookParameter } from '@cucumber/cucumber'
+import { ITestCaseHookParameter, Then } from '@cucumber/cucumber'
 import { Test, TestResult } from '@wdio/types/build/Frameworks'
 
 export default class AzureDevopsService implements Services.ServiceInstance {
   private _azureReporter: AzureTestPlanReporter
   private currentScreenshot?: string;
-  private withScreenshot:boolean;
+  private withScreenshotSuccess:boolean;
+  private withScreenshotFailed:boolean;
   constructor(
     private _options: IAzureConfig,
     private _capabilities: Capabilities.RemoteCapability,
     private _config: Omit<Options.Testrunner, 'capabilities'>
   ) {
     _options = Object.assign(_options, { stdout: true })
-    this.withScreenshot = _options.failedScreenshot ?? false;
+    this.withScreenshotSuccess = _options.screenshotSuccess ?? false;
+    this.withScreenshotFailed = _options.screenshotFailed ?? false;
     this._azureReporter = new AzureTestPlanReporter(this._options)
   }
 
@@ -73,11 +75,13 @@ export default class AzureDevopsService implements Services.ServiceInstance {
     const runId = await this._azureReporter.getCurrentTestRunId()
     const sedTest = await this._azureReporter.sendTestResult(testResult, runId)
     
-    if (sedTest.length > 0 && this.withScreenshot == true) {
+    const passUpload = ((this.withScreenshotSuccess == true && result.passed == true) || (this.withScreenshotFailed == true && result.passed == false)) ? true : false 
+
+    if (sedTest.length > 0 && passUpload == true) {
       sedTest.forEach(async (uniTest) => {
           const screenshot = this.currentScreenshot
           if (screenshot != null) {
-            await this._azureReporter.uploadAttachmentTestCase(uniTest.id ?? 0,runId, "GeneralAttachment", "", "Screenshot.png", screenshot);
+            await this._azureReporter.uploadAttachmentTestCase(uniTest.id ?? 0,runId, "GeneralAttachment", "", "Screenshot.png", screenshot)
           }
         });
     }
