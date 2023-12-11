@@ -4,10 +4,12 @@ import { Capabilities, Frameworks, Options, Services } from '@wdio/types'
 import { PickleTag } from '@cucumber/messages'
 import { ITestCaseHookParameter } from '@cucumber/cucumber'
 import { Test, TestResult } from '@wdio/types/build/Frameworks'
+import { Utils } from './utils';
 
 export default class AzureDevopsService implements Services.ServiceInstance {
   private _azureReporter: AzureTestPlanReporter
-
+  private utils: Utils;
+  private currentScreenshot?: string;
   constructor(
     private _options: IAzureConfig,
     private _capabilities: Capabilities.RemoteCapability,
@@ -15,6 +17,7 @@ export default class AzureDevopsService implements Services.ServiceInstance {
   ) {
     _options = Object.assign(_options, { stdout: true })
     this._azureReporter = new AzureTestPlanReporter(this._options)
+    this.utils = new Utils();
   }
 
   async onPrepare(): Promise<void> {
@@ -46,7 +49,6 @@ export default class AzureDevopsService implements Services.ServiceInstance {
 
     await this._azureReporter.init()
     const runId = await this._azureReporter.getCurrentTestRunId()
-
     await this._azureReporter.sendTestResult(testResult, runId)
   }
 
@@ -70,8 +72,23 @@ export default class AzureDevopsService implements Services.ServiceInstance {
 
     await this._azureReporter.init()
     const runId = await this._azureReporter.getCurrentTestRunId()
+    const sedTest = await this._azureReporter.sendTestResult(testResult, runId)
+    if (sedTest.length > 0 && this._options.failedScreenshot == true) {
+      sedTest.forEach(async (uniTest) => {
+          const screenshot = this.currentScreenshot
+          if (screenshot != null) {
+            await this._azureReporter.uploadAttachmentTestCase(uniTest.id ?? 0,runId, "GeneralAttachment", "", "Screenshot.png", screenshot);
+          }
+        });
+    }
+  }
 
-    await this._azureReporter.sendTestResult(testResult, runId)
+  async afterCommand(commandName: string, args: any[], result: any, error?: Error): Promise<void> {
+    if (commandName == 'takeScreenshot') {
+      this.currentScreenshot = result;
+      console.log("mi log command: ", commandName);
+    }
+  
   }
 
   private parseCaseID(pickleTags: readonly PickleTag[]): string {
@@ -107,4 +124,5 @@ export default class AzureDevopsService implements Services.ServiceInstance {
 
     return caseID
   }
+  
 }

@@ -6,6 +6,7 @@ export interface IAzureConfig {
   suiteId: number
   runName: string
   caseIdRegex?: string
+  failedScreenshot?: boolean
 }
 
 export interface ITestResult {
