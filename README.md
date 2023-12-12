@@ -54,6 +54,8 @@ exports.config = {
                   suiteId: 263073,
                   caseIdRegex: '@?[ref](\\d+)',
                   runName: 'FE regression tests for TestPlan',
+                  screenshotSuccess: false,
+                  screenshotFailed: true,
               },
           ],
     ],
@@ -166,6 +168,27 @@ Custom regular expression to match the testCaseId from tag or title test case.
 Type: `string`
 
 Default: `"@?[cC](\d+)"`
+
+Required: `false`
+
+### screenshotSuccess
+
+In true, the test cases that pass will send a screenshot in png format of the execution result as an attachment in the runner in azure devops.
+
+Type: `boolean`
+
+Default: `false`
+
+Required: `false`
+
+
+### screenshotFailed
+
+In true, test cases that fail will send a screenshot in png format of the execution result as an attachment in the runner in azure devops
+
+Type: `boolean`
+
+Default: `false`
 
 Required: `false`
 
