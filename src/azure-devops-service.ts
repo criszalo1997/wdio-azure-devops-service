@@ -50,7 +50,18 @@ export default class AzureDevopsService implements Services.ServiceInstance {
 
     await this._azureReporter.init()
     const runId = await this._azureReporter.getCurrentTestRunId()
-    await this._azureReporter.sendTestResult(testResult, runId)
+    const sedTest = await this._azureReporter.sendTestResult(testResult, runId)
+    
+    const passUpload = ((this.withScreenshotSuccess == true && result.passed == true) || (this.withScreenshotFailed == true && result.passed == false)) ? true : false 
+
+    if (sedTest.length > 0 && passUpload == true) {
+      sedTest.forEach(async (uniTest) => {
+          const screenshot = this.currentScreenshot
+          if (screenshot != null) {
+            await this._azureReporter.uploadAttachmentTestCase(uniTest.id ?? 0,runId, "GeneralAttachment", "", "Screenshot.png", screenshot)
+          }
+        });
+    }
   }
 
   async afterScenario(
